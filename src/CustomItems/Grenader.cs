@@ -7,6 +7,7 @@ namespace vip.zeitvertreib.CustomItems
     using Exiled.API.Features.Components;
     using Exiled.API.Features.Pickups.Projectiles;
     using Exiled.API.Features.Spawn;
+    using Exiled.API.Features.Items;
     using Exiled.CustomItems.API.Features;
     using Exiled.Events.EventArgs.Player;
 
@@ -22,6 +23,9 @@ namespace vip.zeitvertreib.CustomItems
     using RemoteAdmin;
     using static Broadcast;
 
+    using vip.zeitvertreib;
+    using static vip.zeitvertreib.ZeitvertreibCommon;
+
 
 
     [CustomItem(ItemType.GunCom45)]
@@ -31,31 +35,48 @@ namespace vip.zeitvertreib.CustomItems
         public override string Name { get; set; } = "Granatenteilchenbeschleuniger";
         public override string Description { get; set; } = "Dieser \"Aperat\" ist zu mächtig. Es sollte weggesperrt werden jedoch findet die Menschheit das Töten wichtiger ist.";
         public override float Weight { get; set; } = 0f;
-        public override float Damage { get; set; }
+        public override float Damage { get; set; } = 0f;
         public override byte ClipSize { get; set; } = byte.MaxValue;
 
-        public override SpawnProperties SpawnProperties { get; set; } = new SpawnProperties
-        {
-
-        };
+        public override SpawnProperties SpawnProperties { get; set; } = new SpawnProperties { };
 
         protected override void OnReloading(ReloadingWeaponEventArgs ev)
         {
-            ev.IsAllowed = false;
+            ev.IsAllowed = Instance.Config.adminItems.grenader.reloadable;
         }
 
         protected override void OnDropping(DroppingItemEventArgs ev)
         {
-            ev.Player.Broadcast(10, "<size=40><color=#F00>DANGER: YOU DROPPED A WEAPON BELONGING TO \n max.bambus76</color></size>\n", BroadcastFlags.Normal, true);
+            string adminChat = RAUserIdParser.applyBroadcastFormatting(ev.Player, Instance.Config.adminItems.grenader.broadcasts.dropped.AdminChat);
+            string adminBroadcast = RAUserIdParser.applyBroadcastFormatting(ev.Player, Instance.Config.adminItems.grenader.broadcasts.dropped.AdminsBroadcast);
+            string playerBroadcast = RAUserIdParser.applyBroadcastFormatting(ev.Player, Instance.Config.adminItems.grenader.broadcasts.dropped.PlayerBroadcast);
+            string mapBroudcast = RAUserIdParser.applyBroadcastFormatting(ev.Player, Instance.Config.adminItems.grenader.broadcasts.dropped.MapBroadcast);
 
-            CommandProcessor.ProcessAdminChat("[ZEITVERTREIB-COMMONS] " + ev.Player.DisplayNickname + " dropped dangerous weapon (Grenader)", new ServerConsoleSender());
+            if (playerBroadcast.Length > 0)
+                ev.Player.Broadcast(10, mapBroudcast, BroadcastFlags.Normal, true);
+            if (adminChat.Length > 0)
+                CommandProcessor.ProcessAdminChat(adminChat, new ServerConsoleSender());
+            if (mapBroudcast.Length > 0)
+                Map.Broadcast(10, mapBroudcast, BroadcastFlags.Normal, true);
+            if (adminBroadcast.Length > 0)
+                ev.Player.Broadcast(10, adminBroadcast, BroadcastFlags.AdminChat, true);
         }
 
         protected override void OnPickingUp(PickingUpItemEventArgs ev)
         {
-            Map.Broadcast(10, "<size=40><color=#F00>DANGER: A WEAPON BELONGING TO \n max.bambus76 WAS PICKED UP</color></size>\n", BroadcastFlags.Normal, true);
-            CommandProcessor.ProcessAdminChat("[ZEITVERTREIB-COMMONS] " + ev.Player.DisplayNickname + " picked up dangerous weapon (Grenader)", new ServerConsoleSender());
-            CommandProcessor.ProcessAdminChat("[ZEITVERTREIB-COMMONS] Use command \"ci l ii\" to see all picked up weapons", new ServerConsoleSender());
+            string adminChat = RAUserIdParser.applyBroadcastFormatting(ev.Player, Instance.Config.adminItems.grenader.broadcasts.pickedUp.AdminChat);
+            string adminBroadcast = RAUserIdParser.applyBroadcastFormatting(ev.Player, Instance.Config.adminItems.grenader.broadcasts.pickedUp.AdminsBroadcast);
+            string playerBroadcast = RAUserIdParser.applyBroadcastFormatting(ev.Player, Instance.Config.adminItems.grenader.broadcasts.pickedUp.PlayerBroadcast);
+            string mapBroudcast = RAUserIdParser.applyBroadcastFormatting(ev.Player, Instance.Config.adminItems.grenader.broadcasts.pickedUp.MapBroadcast);
+
+            if (playerBroadcast.Length > 0)
+                ev.Player.Broadcast(10, mapBroudcast, BroadcastFlags.Normal, true);
+            if (adminChat.Length > 0)
+                CommandProcessor.ProcessAdminChat(adminChat, new ServerConsoleSender());
+            if (mapBroudcast.Length > 0)
+                Map.Broadcast(10, mapBroudcast, BroadcastFlags.Normal, true);
+            if (adminBroadcast.Length > 0)
+                ev.Player.Broadcast(10, adminBroadcast, BroadcastFlags.AdminChat, true);
         }
 
 
@@ -63,11 +84,15 @@ namespace vip.zeitvertreib.CustomItems
         {
             ev.IsAllowed = false;
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < Instance.Config.adminItems.grenader.rate; i++)
             {
-                Projectile projectile = ev.Player.ThrowGrenade(ProjectileType.FragGrenade, true).Projectile; 
-                projectile.GameObject.AddComponent<CollisionHandler>().Init(ev.Player.GameObject, projectile.Base);
+                Projectile projectile = ev.Player.ThrowGrenade(ProjectileType.FragGrenade, true).Projectile;
+                if (Instance.Config.adminItems.grenader.explodeOnImpact)
+                    projectile.GameObject.AddComponent<CollisionHandler>().Init(ev.Player.GameObject, projectile.Base);
             }
+
+            if (ev.Player.CurrentItem is Firearm firearm)
+                firearm.Ammo -= (byte) Instance.Config.adminItems.grenader.ammoPerShot;
         }
 
     }

@@ -6,38 +6,53 @@ namespace vip.zeitvertreib
     using Exiled.API.Features.Items;
     using Exiled.Events.EventArgs.Scp914;
 
+    using Exiled.API.Features.Pickups;
 
     using MEC;
 
     using Scp914;
 
+    using vip.zeitvertreib;
+    using vip.zeitvertreib.config;
+    using static vip.zeitvertreib.ZeitvertreibCommon;
+
     internal sealed class EventsHandler
     {
         public void On914UpgradeItemOnGround(UpgradingPickupEventArgs ev)
         {
-            if (ev.KnobSetting == Scp914KnobSetting.OneToOne)
+            foreach (Scp914Changes change in Instance.Config.scp914changes)
             {
-                if (ev.Pickup.Type == ItemType.KeycardMTFPrivate)
-                {
-                    ItemUtils.replaceItem(ev.Pickup, ItemType.KeycardContainmentEngineer, ev.OutputPosition);
-                    ev.IsAllowed = false;
-                }
-            }
+                if (ev.KnobSetting != change.knobSetting) continue;
+                if (ev.Pickup.Type != change.input) continue;
 
+                int rand = UnityEngine.Random.Range(0, 100);
+
+                ItemUtils.replaceItem(ev.Pickup, ((rand < change.chance) ? change.outputSuccess : change.outputFail), ev.OutputPosition);
+                ev.IsAllowed = false;
+
+                break;
+            }
         }
 
         public void On914UpgradeItemInInventory(UpgradingInventoryItemEventArgs ev)
         {
-            if (ev.KnobSetting == Scp914KnobSetting.OneToOne)
+            foreach (Scp914Changes change in Instance.Config.scp914changes)
             {
-                if (ev.Item.Type == ItemType.KeycardMTFPrivate)
-                {
-                    ev.Player.AddItem(ItemType.KeycardContainmentEngineer);
-                    ev.Player.RemoveItem(ev.Item.Serial);
-                    ev.IsAllowed = false;
-                }
-            }
+                if (ev.KnobSetting != change.knobSetting) continue;
+                if (ev.Item.Type != change.input) continue;
 
+                int rand = UnityEngine.Random.Range(0, 100);
+                
+                ev.Player.RemoveItem(ev.Item.Serial);
+
+                ev.IsAllowed = false;
+
+                ItemType item = ((rand < change.chance) ? change.outputSuccess : change.outputFail);
+                if (item != ItemType.None)
+                    ev.Player.AddItem(item);
+                    
+                break;
+            }
         }
     }
 }

@@ -28,6 +28,8 @@ namespace vip.zeitvertreib.CustomItems
 
     using MEC;
 
+    using static vip.zeitvertreib.ZeitvertreibCommon;
+
     [CustomItem(ItemType.SCP500)]
     public class Fake500 : CustomItem
     {
@@ -52,9 +54,17 @@ namespace vip.zeitvertreib.CustomItems
             base.UnsubscribeEvents();
         }
 
-        protected override void OnChanging(ChangingItemEventArgs ev){}
+        protected override void OnChanging(ChangingItemEventArgs ev)
+        {
+            if (Instance.Config.adminItems.fake500.showItemInfoExiledText)
+                base.OnChanging(ev);
+        }
 
-        protected override void OnAcquired(Player player, Item item, bool displayMessage){}
+        protected override void OnAcquired(Player player, Item item, bool displayMessage)
+        {
+            if (Instance.Config.adminItems.fake500.showPickedUpExiledText)
+                base.OnAcquired(player, item, displayMessage);
+        }
 
 
         private void OnUsingItem(UsingItemEventArgs ev)
@@ -64,47 +74,29 @@ namespace vip.zeitvertreib.CustomItems
 
             Timing.CallDelayed(1f, () =>
             {
+                Fake500Helper.applyEffects(ev.Player, Instance.Config.adminItems.fake500.effectsOnConsumtion);
 
-                ev.Player.EnableEffect<AmnesiaVision>(10f, true);
-                ev.Player.EnableEffect<Blinded>(10f, true);
-
-                Timing.CallDelayed(2f, () =>
+                Timing.CallDelayed(Instance.Config.adminItems.fake500.delayBeforeDeathEvent, () =>
                 {
-                    int rand = UnityEngine.Random.Range(1, 9);
-                    switch (rand)
+                    try
                     {
-                        case 1: 
-                            ServerConsole.Disconnect(ev.Player.ReferenceHub.gameObject, "You have been kicked. Reason: Timed out");
-                            break;
-                        case 2:
-                            ExplosionUtils.ServerExplode(ev.Player.ReferenceHub);
-                            break;
-                        case 3: 
-                            ev.Player.EnableEffect<CardiacArrest>(100f, true);
-                            ev.Player.EnableEffect<SeveredHands>(100f, true);
-                            break;
-                        case 4: 
-                            ev.Player.Hurt(ev.Player, 65535, DamageType.Unknown, null, "You were bitten very hard by Belu`s pet!");
-                            break;
-                        case 5: 
-                            ev.Player.Position += new Vector3(0, 50, 0);
-                            break;
-                        case 6: 
-                            ev.Player.EnableEffect<SeveredHands>(100f, true);
-                            break;
-                        case 7:
-                            ev.Player.Position = TeslaGateController.Singleton.TeslaGates[0].Position;
-                            ev.Player.Position += new Vector3(0, 2, 0);
-                            ev.Player.EnableEffect<Ensnared>((byte)100, 100f, true);
-                            break;
-                        case 8:
-                            ev.Player.EnableEffect<Flashed>(100, true);
-                            ev.Player.EnableEffect<CardiacArrest>(100f, true);
-                            ev.Player.EnableEffect<Ensnared>((byte)100, 100f, true);
-                            break;
+                        if (DeathEventConfig == null || DeathEventConfig.Count < 1)
+                        {
+                            ev.Player.Kill(DamageType.Unknown, "SCP-500 failed to kill you but did it anyways");
+                            return;
+                        }
+                        int rand = UnityEngine.Random.Range(1, DeathEventConfig.Count);
+                        DeathEventConfig[rand].execute(ev.Player);
+
+                    }
+                    catch (Exception e)
+                    {
+                        ev.Player.Kill(DamageType.Unknown, "SCP-500 failed to kill you but did it anyways");
+                        Log.Error("An error was caught when randomizing Fake-500 death chances");
+                        Log.Error("If this is not a config error please report the following error to the Github-Repo (https://github.com/RadSton/ZeitvertreibCommon/issues/new)");
+                        Log.Error(e);
                     }
                 });
-
             });
 
 

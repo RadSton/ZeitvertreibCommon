@@ -22,5 +22,10 @@ namespace vip.zeitvertreib
                 
             old.Destroy();
         }
+
+        public static void giveCustomItem(Player p, int customItemId) {
+            if(p == null) return;
+             
+        }
 }
 }

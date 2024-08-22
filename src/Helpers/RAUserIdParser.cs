@@ -30,5 +30,9 @@ namespace vip.zeitvertreib
 
             return player;
         }
+
+        public static string applyBroadcastFormatting(Player p, string broadcast) {
+            return broadcast.Replace("{Name}", p.Nickname.ToString()).Replace("{Id}", p.Id.ToString()).Replace("{Room}", p.CurrentRoom.Name.ToString());
+        }
     }
 }
