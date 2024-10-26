@@ -207,7 +207,7 @@ namespace vip.zeitvertreib.config
 
         public override void execute(Player p)
         {
-            ExplosionUtils.ServerExplode(p.ReferenceHub);
+            ExplosionUtils.ServerExplode(p.ReferenceHub, false);
         }
     }
 
