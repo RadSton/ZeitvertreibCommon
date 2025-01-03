@@ -34,7 +34,7 @@ namespace vip.zeitvertreib.CustomItems
         public override string Description { get; set; } = "Dieser \"Aperat\" ist zu mächtig. Es sollte weggesperrt werden jedoch findet die Menschheit das Töten wichtiger ist.";
         public override float Weight { get; set; } = 0f;
         public override float Damage { get; set; } = 0f;
-        public override byte ClipSize { get; set; } = byte.MaxValue;
+        public override byte ClipSize { get; set; } = 36;
         public override SpawnProperties SpawnProperties { get; set; } = new SpawnProperties { };
 
         protected override void OnReloading(ReloadingWeaponEventArgs ev)
@@ -84,8 +84,6 @@ namespace vip.zeitvertreib.CustomItems
             for (int i = 0; i < Instance.Config.adminItems.blitzer.rate; i++) // To calculate the per second value multiply by 60 (rate of COM45 / sec)
                 ev.Player.ThrowGrenade(ProjectileType.Scp2176, true);
 
-            if (ev.Player.CurrentItem is Firearm firearm)
-                firearm.Ammo -= (byte) Instance.Config.adminItems.blitzer.ammoPerShot;
         }
 
     }
