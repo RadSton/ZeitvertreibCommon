@@ -20,7 +20,8 @@ namespace vip.zeitvertreib.config
     using InventorySystem;
     using RemoteAdmin;
 
-    
+    using static TeslaGate;
+
     using UnityEngine;
 
     public class Fake500Config
@@ -195,7 +196,11 @@ namespace vip.zeitvertreib.config
 
         public override void execute(Player p)
         {
-            p.Position = TeslaGateController.Singleton.TeslaGates[0].Position;
+            foreach (var item in AllGates)
+            {
+                p.Position = item.Position;
+                break;
+            }
             p.Position += new Vector3(0, 2, 0);
             p.EnableEffect<Ensnared>((byte)100, 100f, true);
         }
@@ -207,7 +212,7 @@ namespace vip.zeitvertreib.config
 
         public override void execute(Player p)
         {
-            ExplosionUtils.ServerExplode(p.ReferenceHub, false);
+            ExplosionUtils.ServerExplode(p.ReferenceHub, ExplosionType.PinkCandy);
         }
     }
 

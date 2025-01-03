@@ -36,7 +36,7 @@ namespace vip.zeitvertreib.CustomItems
         public override string Description { get; set; } = "Dieser \"Aperat\" ist zu mächtig. Es sollte weggesperrt werden jedoch findet die Menschheit das Töten wichtiger ist.";
         public override float Weight { get; set; } = 0f;
         public override float Damage { get; set; } = 0f;
-        public override byte ClipSize { get; set; } = byte.MaxValue;
+        public override byte ClipSize { get; set; } = 1;
 
         public override SpawnProperties SpawnProperties { get; set; } = new SpawnProperties { };
 
@@ -91,8 +91,8 @@ namespace vip.zeitvertreib.CustomItems
                     projectile.GameObject.AddComponent<CollisionHandler>().Init(ev.Player.GameObject, projectile.Base);
             }
 
-            if (ev.Player.CurrentItem is Firearm firearm)
-                firearm.Ammo -= (byte) Instance.Config.adminItems.grenader.ammoPerShot;
+            //if (ev.Player.CurrentItem is Firearm firearm)
+            //    firearm.Ammo -= (byte) Instance.Config.adminItems.grenader.ammoPerShot;
         }
 
     }

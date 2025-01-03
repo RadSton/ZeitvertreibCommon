@@ -16,7 +16,7 @@ namespace vip.zeitvertreib
         private static ZeitvertreibCommon Singleton;
         public static ZeitvertreibCommon Instance => Singleton;
         public static List<DeathEventConfig> DeathEventConfig = new List<DeathEventConfig>();
-        public static string VERSION { get; set; } = "1.0.1";
+        public static string VERSION { get; set; } = "1.0.2";
         private EventsHandler eventsHandler;
         private static Items itemClass = new Items();
         public override PluginPriority Priority { get; } = PluginPriority.Last;

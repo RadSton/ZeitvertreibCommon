@@ -29,6 +29,11 @@ namespace vip.zeitvertreib
                 return false;
             }
 
+            if(arguments.Count == 0) {
+                response = $"Adminitem \"\" nicht gefunden!";
+                return false;
+            }
+
             if (!CustomItem.TryGet(arguments.At(0), out CustomItem item))
             {
                 response = $"Adminitem {arguments.At(0)} nicht gefunden!";
