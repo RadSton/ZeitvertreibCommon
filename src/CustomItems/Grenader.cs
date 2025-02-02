@@ -82,12 +82,13 @@ namespace vip.zeitvertreib.CustomItems
 
         protected override void OnShooting(ShootingEventArgs ev)
         {
-            ev.IsAllowed = false;
+            ev.IsAllowed = false;   
 
             for (int i = 0; i < 5; i++)
             {
                 Projectile projectile = ev.Player.ThrowGrenade(ProjectileType.FragGrenade, true).Projectile;
-
+                projectile.GameObject.AddComponent<CustomCollisionHandler>().Init(ev.Player.GameObject, projectile.Base);
+                
                 //if (Instance.Config.adminItems.grenader.explodeOnImpact)
                 //    projectile.GameObject.AddComponent<CustomCollisionHandler>().Init(ev.Player.GameObject, projectile.Base);
             }

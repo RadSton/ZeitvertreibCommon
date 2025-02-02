@@ -2,10 +2,12 @@
 namespace vip.zeitvertreib.CustomItems
 {
     using System;
+    using System.Collections.Generic;
     using InventorySystem.Items.ThrowableProjectiles;
     using Exiled.API.Features;
     using Exiled.API.Features.Pickups;
     using UnityEngine;
+    using MEC;
 
     /// <summary>
     /// Collision Handler for grenades.
@@ -13,6 +15,8 @@ namespace vip.zeitvertreib.CustomItems
     public class CustomCollisionHandler : MonoBehaviour
     {
         private bool initialized;
+
+        private int Counter = 0; 
 
         /// <summary>
         /// Gets the thrower of the grenade.
@@ -26,9 +30,18 @@ namespace vip.zeitvertreib.CustomItems
 
         public void Init(GameObject owner, ThrownProjectile grenade)
         {
+            if(initialized) return;
+
             Owner = owner;
             Grenade = (EffectGrenade)grenade;
             initialized = true;
+        }
+
+
+        private void FixedUpdate() {
+            if(!initialized) return;
+            
+            Counter++;
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -36,6 +49,9 @@ namespace vip.zeitvertreib.CustomItems
             try
             {
                 if (!initialized)
+                    return;
+
+                if(Counter <= 10) 
                     return;
 
                 if (Grenade.TargetTime <= 1f)
